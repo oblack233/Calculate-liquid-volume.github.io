@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>井筒计算工具</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="well-diagram">
+            <h2>井身结构示意图</h2>
+            <div class="diagram-container" id="wellDiagram">
+                <!-- 井身结构图会在这里动态生成 -->
+            </div>
+        </div>
+        
+        <div class="calculation-form">
+            <h2>计算参数输入</h2>
+            
+            <!-- 套管部分 -->
+            <div class="section">
+                <h3>套管设置</h3>
+                <div id="casingList">
+                    <div class="casing-item">
+                        <div class="form-group">
+                            <label>顶部深度 (m):</label>
+                            <input type="number" class="casing-top-depth" min="0" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>下入深度 (m):</label>
+                            <input type="number" class="casing-bottom-depth" min="0" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>套管尺寸:</label>
+                            <select class="casing-size">
+                                <option value="">请选择尺寸</option>
+                                <!-- 套管尺寸选项将通过JS动态加载 -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>外径 (mm):</label>
+                            <input type="number" class="casing-od" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>内径 (mm):</label>
+                            <input type="number" class="casing-id" step="0.01">
+                        </div>
+                    </div>
+                </div>
+                <button id="addCasing">添加套管段</button>
+            </div>
+            
+            <!-- 油管部分 -->
+            <div class="section">
+                <h3>油管设置</h3>
+                <div class="form-group">
+                    <label>油管类型:</label>
+                    <select id="tubingType">
+                        <option value="regular">平式油管</option>
+                        <option value="thickened">外加厚油管</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>公称直径:</label>
+                    <select id="tubingSize">
+                        <option value="">请选择尺寸</option>
+                        <!-- 油管尺寸选项将通过JS动态加载 -->
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>内径规格:</label>
+                    <select id="tubingInnerSpec">
+                        <option value="">请选择内径规格</option>
+                        <!-- 内径规格选项将通过JS动态加载 -->
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>外径 (mm):</label>
+                    <input type="number" id="tubingOD" step="0.01">
+                </div>
+                
+                <div class="form-group">
+                    <label>内径 (mm):</label>
+                    <input type="number" id="tubingID" step="0.01">
+                </div>
+                
+                <div class="form-group">
+                    <label>单位重量 (t/1000m):</label>
+                    <input type="number" id="tubingWeight" step="0.01">
+                </div>
+                
+                <div class="form-group">
+                    <label>油管深度 (m):</label>
+                    <input type="number" id="tubingDepth" min="0" step="0.01">
+                </div>
+            </div>
+            
+            <!-- 计算按钮 -->
+            <button id="calculate">计算</button>
+            
+            <!-- 计算结果 -->
+            <div class="results">
+                <h3>计算结果</h3>
+                <div class="result-item">
+                    <label>油管内容积 (m³):</label>
+                    <span id="tubingVolume">-</span>
+                </div>
+                <div class="result-item">
+                    <label>油管重量 (t):</label>
+                    <span id="totalTubingWeight">-</span>
+                </div>
+                <div class="result-item">
+                    <label>环空体积 (m³):</label>
+                    <span id="annularVolume">-</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

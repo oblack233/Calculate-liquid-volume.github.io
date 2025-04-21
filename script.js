@@ -1,41 +1,98 @@
 // 套管数据结构
 const casingData = {
+    "20 ": {
+        od: 508,
+        variants: [
+            { id: 485.3, weight: 139.68 }          
+        ]
+    },  
+    "13 3/8": {
+        od: 339.7,
+        variants: [
+            { id: 322.9, weight: 70.90 },
+            { id: 320.4, weight: 80.78 },
+            { id: 317.9, weight: 90.59 },
+            { id: 315.3, weight: 100.3 },
+            { id: 313.6, weight: 106.87 }          
+        ]
+    },
     "9 5/8": {
         od: 244.5,
         variants: [
-            { id: 220.5, weight: 53.57 },
-            { id: 216.8, weight: 64.82 },
-            { id: 211.1, weight: 79.62 }
+            { id: 228.7, weight: 47.99 },       
+            { id: 226.6, weight: 53.59 },
+            { id: 224.4, weight: 59.54 },          
+            { id: 222.4, weight: 65.54 },
+            { id: 220.5, weight: 70.64 },
+            { id: 216.8, weight: 80.39 }
         ]
     },
-    "7": {
+    "7 ": {
         od: 177.8,
         variants: [
-            { id: 162.0, weight: 29.76 },
-            { id: 159.4, weight: 34.23 },
-            { id: 155.3, weight: 42.07 }
+            { id: 166.1, weight: 25.6 },       
+            { id: 164, weight: 29.78 },
+            { id: 161.7, weight: 34.27 },          
+            { id: 159.4, weight: 38.72 },
+            { id: 157.1, weight: 43.34 },          
+            { id: 154.8, weight: 47.64 },
+            { id: 152.5, weight: 51.88 },
+            { id: 150.4, weight: 55.78 }
         ]
     },
     "5 1/2": {
         od: 139.7,
         variants: [
-            { id: 125.7, weight: 20.83 },
-            { id: 121.4, weight: 25.30 },
-            { id: 116.6, weight: 29.76 }
+            { id: 127.3, weight: 20.79 },
+            { id: 125.7, weight: 23.20 },          
+            { id: 124.3, weight: 25.43 },
+            { id: 121.4, weight: 29.81 },
+            { id: 118.6, weight: 33.78 }
         ]
     },
+    "5 ": {
+        od: 127,
+        variants: [
+            { id: 115.8, weight: 17.11 },
+            { id: 114.1, weight: 19.45 },          
+            { id: 112.0, weight: 22.44 },
+            { id: 108.6, weight: 27.00 }
+        ]
+    },  
     "4 1/2": {
         od: 114.3,
         variants: [
-            { id: 102.9, weight: 14.29 },
-            { id: 100.4, weight: 17.26 },
-            { id: 97.2, weight: 20.83 }
+            { id: 99.56, weight: 20.83 }
         ]
     }
 };
 
 // 平式油管数据
 const regularTubingData = {
+    "1.050 ": {
+        od: 26.7,
+        variants: [
+            { id: 21, weight: 1.70 }
+        ]
+    },  
+    "1.315 ": {
+        od: 33.4,
+        variants: [
+            { id: 26.6, weight: 2.53 }
+        ]
+    },    
+    "1.660 ": {
+        od: 42.2,
+        variants: [
+            { id: 35.1, weight: 3.44 }
+        ]
+    },  
+    "1.990 ": {
+        od: 48.3,
+        variants: [
+            { id: 40.9, weight: 4.09 }
+        ]
+    },  
     "2 3/8": {
         od: 60.3,
         variants: [
@@ -47,61 +104,90 @@ const regularTubingData = {
     "2 7/8": {
         od: 73.0,
         variants: [
-            { id: 62.8, weight: 7.82 },
-            { id: 61.9, weight: 8.63 },
-            { id: 59.4, weight: 10.54 }
+            { id: 62.0, weight: 9.41 },
+            { id: 57.4, weight: 12.75 }
         ]
     },
     "3 1/2": {
         od: 88.9,
         variants: [
-            { id: 76.0, weight: 10.26 },
-            { id: 74.2, weight: 12.95 },
-            { id: 71.4, weight: 15.27 }
+            { id: 77.9, weight: 11.68 },
+            { id: 76.0, weight: 13.48 },
+            { id: 74.2, weight: 15.11 },          
+            { id: 69.9, weight: 18.93 }
         ]
     },
     "4": {
         od: 101.6,
         variants: [
-            { id: 87.2, weight: 12.64 },
-            { id: 84.0, weight: 16.07 },
-            { id: 80.4, weight: 19.65 }
+            { id: 90.1, weight: 14.02 }
         ]
     },
     "4 1/2": {
         od: 114.3,
         variants: [
-            { id: 100.5, weight: 12.6 },
-            { id: 97.2, weight: 16.8 },
-            { id: 93.5, weight: 20.8 }
+            { id: 100.5, weight: 18.66 }
         ]
     }
 };
 
 // 外加厚油管数据
 const thickenedTubingData = {
+    "1.050 ": {
+        od: 26.7,
+        variants: [
+            { id: 21, weight: 1.79 }
+        ]
+    },  
+    "1.315 ": {
+        od: 33.4,
+        variants: [
+            { id: 26.6, weight: 2.60 }
+        ]
+    },    
+    "1.660 ": {
+        od: 42.2,
+        variants: [
+            { id: 35.1, weight: 3.50 }
+        ]
+    },  
+    "1.990 ": {
+        od: 48.3,
+        variants: [
+            { id: 40.9, weight: 4.20 }
+        ]
+    },    
     "2 3/8": {
         od: 60.3,
         variants: [
-            { id: 49.2, weight: 7.68 },
-            { id: 46.0, weight: 9.67 },
-            { id: 42.9, weight: 11.32 }
+            { id: 50.6, weight: 6.89 },
+            { id: 47.4, weight: 8.83 }
         ]
     },
     "2 7/8": {
         od: 73.0,
         variants: [
-            { id: 59.4, weight: 10.54 },
-            { id: 57.2, weight: 12.06 },
-            { id: 53.2, weight: 15.03 }
+            { id: 62, weight: 9.58 },
+            { id: 57.4, weight: 12.93 }
         ]
     },
     "3 1/2": {
         od: 88.9,
         variants: [
-            { id: 71.4, weight: 15.27 },
-            { id: 69.0, weight: 17.26 },
-            { id: 66.1, weight: 19.94 }
+            { id: 76.0, weight: 13.80 },
+            { id: 69.9, weight: 19.24 }
+        ]
+    },
+    "4": {
+        od: 101.6,
+        variants: [
+            { id: 88.3, weight: 16.66 }
+        ]
+    },
+    "4 1/2": {
+        od: 114.3,
+        variants: [
+            { id: 100.5, weight: 19.20 }
         ]
     }
 };

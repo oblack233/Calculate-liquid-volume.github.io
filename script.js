@@ -672,17 +672,23 @@ function drawWellDiagram() {
     rulerEl.style.width = '40px';
     rulerEl.style.borderRight = '1px solid #ccc';
     
-    // 添加刻度
-    const stepCount = 10;
-    const stepDepth = maxDepth / stepCount;
-    for (let i = 0; i <= stepCount; i++) {
-        const depth = i * stepDepth;
+    // 根据最大深度确定合适的刻度间隔
+    let stepSize = 100; // 默认间隔为100米
+    
+    if (maxDepth > 2000) {
+        stepSize = 500; // 超过2000米，使用500米间隔
+    } else if (maxDepth > 1000) {
+        stepSize = 200; // 超过1000米，使用200米间隔
+    }
+    
+    // 添加刻度，从0开始，按stepSize增加，直到超过maxDepth
+    for (let depth = 0; depth <= maxDepth; depth += stepSize) {
         const depthLabel = document.createElement('div');
         depthLabel.style.position = 'absolute';
         depthLabel.style.top = `${20 + depth * scale}px`;
         depthLabel.style.right = '5px';
         depthLabel.style.fontSize = '10px';
-        depthLabel.textContent = `${depth.toFixed(0)}m`;
+        depthLabel.textContent = `${depth}m`;
         
         const tick = document.createElement('div');
         tick.style.position = 'absolute';

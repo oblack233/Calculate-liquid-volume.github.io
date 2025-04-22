@@ -532,7 +532,7 @@ function calculateAll() {
     const tubingOD = parseFloat(document.getElementById('tubingOD').value);
     
     // 验证输入
-    if (!tubingID || !tubingDepth || !tubingWeight) {
+    if (!tubingID || !tubingDepth || !tubingWeight || !tubingOD) {
         alert('请完整填写油管信息和深度');
         return;
     }
@@ -543,46 +543,87 @@ function calculateAll() {
     // 计算油管重量
     const totalTubingWeight = (tubingWeight / 1000) * tubingDepth;
     
-    // 获取所有套管数据
+    // 获取所有套管数据并验证
     const casingItems = document.querySelectorAll('.casing-item');
-    let annularVolume = 0;
+    const casingData = [];
     
-    // 计算油管外壁与套管内壁之间的环空体积
     casingItems.forEach(item => {
-        const topDepth = parseFloat(item.querySelector('.casing-top-depth').value) || 0;
-        const bottomDepth = parseFloat(item.querySelector('.casing-bottom-depth').value) || 0;
-        const casingID = parseFloat(item.querySelector('.casing-id').value) || 0;
+        const topDepth = parseFloat(item.querySelector('.casing-top-depth').value);
+        const bottomDepth = parseFloat(item.querySelector('.casing-bottom-depth').value);
+        const casingID = parseFloat(item.querySelector('.casing-id').value);
+        const casingOD = parseFloat(item.querySelector('.casing-od').value);
         
-        if (isNaN(topDepth) || isNaN(bottomDepth) || isNaN(casingID)) {
-            return; // 跳过无效数据
-        }
-        
-        // 计算与油管重叠部分的环空体积
-        if (topDepth < tubingDepth && casingID > tubingOD) {
-            // 确定重叠段的上下边界
-            const overlapTop = Math.max(topDepth, 0);
-            const overlapBottom = Math.min(bottomDepth, tubingDepth);
-            
-            if (overlapBottom > overlapTop) {
-                // 计算这段环空体积
-                const segmentAnnularVolume = Math.PI * (Math.pow(casingID / 2000, 2) - Math.pow(tubingOD / 2000, 2)) * (overlapBottom - overlapTop);
-                annularVolume += segmentAnnularVolume;
-            }
-        }
-        
-        // 计算井底(油管底)到套管底的套管内容积
-        if (bottomDepth > tubingDepth && topDepth < bottomDepth) {
-            // 确定油管底部以下段的上下边界
-            const belowTubingTop = Math.max(tubingDepth, topDepth);
-            const belowTubingBottom = bottomDepth;
-            
-            if (belowTubingBottom > belowTubingTop) {
-                // 计算这段套管内容积
-                const belowTubingVolume = Math.PI * Math.pow(casingID / 2000, 2) * (belowTubingBottom - belowTubingTop);
-                annularVolume += belowTubingVolume;
-            }
+        if (!isNaN(topDepth) && !isNaN(bottomDepth) && !isNaN(casingID) && !isNaN(casingOD) && 
+            topDepth < bottomDepth && casingID > 0 && casingOD > 0) {
+            casingData.push({
+                top: topDepth,
+                bottom: bottomDepth,
+                id: casingID,
+                od: casingOD
+            });
         }
     });
+    
+    // 如果没有有效的套管数据，无法计算环空体积
+    if (casingData.length === 0) {
+        alert('请至少添加一段有效的套管数据');
+        return;
+    }
+    
+    // 按照深度从小到大分段计算
+    let annularVolume = 0;
+    
+    // 1. 收集所有深度分界点（套管顶部和底部深度）
+    let depthPoints = new Set();
+    casingData.forEach(casing => {
+        depthPoints.add(casing.top);
+        depthPoints.add(casing.bottom);
+    });
+    depthPoints.add(0); // 地表
+    depthPoints.add(tubingDepth); // 油管底深
+    
+    // 转换为数组并排序
+    depthPoints = Array.from(depthPoints).sort((a, b) => a - b);
+    
+    // 2. 按深度分段计算环空体积
+    for (let i = 0; i < depthPoints.length - 1; i++) {
+        const startDepth = depthPoints[i];
+        const endDepth = depthPoints[i + 1];
+        const segmentHeight = endDepth - startDepth;
+        
+        if (segmentHeight <= 0) continue; // 跳过相同深度点
+        
+        // 找出该深度段内的所有套管
+        const activeCasings = casingData.filter(casing => 
+            casing.top <= startDepth && casing.bottom >= endDepth);
+        
+        if (activeCasings.length === 0) continue; // 该段深度没有套管
+        
+        // 找出最小内径的套管
+        const minCasingID = Math.min(...activeCasings.map(casing => casing.id));
+        
+        // 计算该段环空体积
+        if (endDepth <= tubingDepth) {
+            // 油管所在区域 - 计算环空体积
+            const segmentAnnularVolume = Math.PI * (Math.pow(minCasingID / 2000, 2) - Math.pow(tubingOD / 2000, 2)) * segmentHeight;
+            annularVolume += segmentAnnularVolume;
+        } else if (startDepth >= tubingDepth) {
+            // 油管底部以下区域 - 计算套管内体积
+            const segmentCasingVolume = Math.PI * Math.pow(minCasingID / 2000, 2) * segmentHeight;
+            annularVolume += segmentCasingVolume;
+        } else {
+            // 跨越油管底部的区域 - 分段计算
+            // 油管覆盖部分的环空体积
+            const tubingPartHeight = tubingDepth - startDepth;
+            const tubingPartVolume = Math.PI * (Math.pow(minCasingID / 2000, 2) - Math.pow(tubingOD / 2000, 2)) * tubingPartHeight;
+            
+            // 油管底部以下部分的套管内体积
+            const belowTubingHeight = endDepth - tubingDepth;
+            const belowTubingVolume = Math.PI * Math.pow(minCasingID / 2000, 2) * belowTubingHeight;
+            
+            annularVolume += tubingPartVolume + belowTubingVolume;
+        }
+    }
     
     // 显示结果
     document.getElementById('tubingVolume').textContent = tubingVolume.toFixed(3);

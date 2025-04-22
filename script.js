@@ -240,15 +240,28 @@ function setupUserModificationTracking() {
 
 // 初始化套管选项
 function initCasingOptions() {
-    const casingSelects = document.querySelectorAll('.casing-size');
+    const casingItems = document.querySelectorAll('.casing-item');
     
-    casingSelects.forEach(select => {
-        populateCasingOptions(select);
+    casingItems.forEach(item => {
+        const sizeSelect = item.querySelector('.casing-size');
+        populateCasingOptions(sizeSelect);
         
-        // 添加更改事件
-        select.addEventListener('change', function() {
+        // 绑定套管尺寸变化事件
+        sizeSelect.addEventListener('change', function() {
             const parent = this.closest('.casing-item');
             updateCasingInnerOptions(parent, this.value);
+        });
+        
+        // 为已有的套管项添加深度变化监听
+        item.querySelector('.casing-top-depth').addEventListener('change', drawWellDiagram);
+        item.querySelector('.casing-bottom-depth').addEventListener('change', drawWellDiagram);
+        
+        // 为外径内径添加修改跟踪
+        item.querySelectorAll('.casing-od, .casing-id').forEach(input => {
+            input.addEventListener('input', function() {
+                this.dataset.userModified = 'true';
+                drawWellDiagram();
+            });
         });
     });
 }
@@ -265,46 +278,52 @@ function populateCasingOptions(select) {
     }
 }
 
-// 更新套管内径选项
+// 更新套管内径选项 - 完全重写，参照油管实现
 function updateCasingInnerOptions(parent, size) {
-    // 找到parent中的内径选择下拉框，如果不存在则创建
-    let innerSpecSelect = parent.querySelector('.casing-inner-spec');
+    // 找到或创建内径规格选择下拉框
+    let innerSpecContainer = parent.querySelector('.inner-spec-container');
     
-    if (!innerSpecSelect) {
-        // 创建新的内径选择下拉框
-        const innerSpecGroup = document.createElement('div');
-        innerSpecGroup.className = 'form-group';
+    if (!innerSpecContainer) {
+        // 创建容器
+        innerSpecContainer = document.createElement('div');
+        innerSpecContainer.className = 'form-group inner-spec-container';
         
+        // 创建标签
         const label = document.createElement('label');
         label.textContent = '内径规格:';
-        innerSpecGroup.appendChild(label);
+        innerSpecContainer.appendChild(label);
         
-        innerSpecSelect = document.createElement('select');
-        innerSpecSelect.className = 'casing-inner-spec';
-        innerSpecGroup.appendChild(innerSpecSelect);
+        // 创建选择框
+        const select = document.createElement('select');
+        select.className = 'casing-inner-spec';
+        innerSpecContainer.appendChild(select);
         
-        // 找到适当的位置插入
-        const odFormGroup = parent.querySelector('.casing-od').closest('.form-group');
-        parent.insertBefore(innerSpecGroup, odFormGroup);
-        
-        // 添加事件监听
-        innerSpecSelect.addEventListener('change', function() {
-            updateCasingDetails(parent, size, this.value);
-        });
+        // 插入到外径输入框之前
+        const odGroup = parent.querySelector('.casing-od').closest('.form-group');
+        parent.insertBefore(innerSpecContainer, odGroup);
     }
     
-    // 清空现有选项
-    innerSpecSelect.innerHTML = '<option value="">请选择内径规格</option>';
+    // 获取内径选择框
+    const innerSpecSelect = innerSpecContainer.querySelector('.casing-inner-spec');
     
-    // 设置外径 - 选择新尺寸时总是更新外径
+    // 清空并重新绑定事件（防止事件重复绑定）
+    innerSpecSelect.innerHTML = '<option value="">请选择内径规格</option>';
+    const newInnerSpecSelect = innerSpecSelect.cloneNode(true);
+    innerSpecContainer.replaceChild(newInnerSpecSelect, innerSpecSelect);
+    
+    // 更新外径
     const odInput = parent.querySelector('.casing-od');
     if (size && casingData[size]) {
         odInput.value = casingData[size].od;
-        // 重置用户修改标记，因为选择了新的尺寸
         odInput.dataset.userModified = 'false';
     } else {
         odInput.value = '';
     }
+    
+    // 清空内径
+    const idInput = parent.querySelector('.casing-id');
+    idInput.value = '';
+    idInput.dataset.userModified = 'false';
     
     // 填充内径选项
     if (size && casingData[size]) {
@@ -313,46 +332,40 @@ function updateCasingInnerOptions(parent, size) {
             const option = document.createElement('option');
             option.value = index;
             option.textContent = `${variant.id}mm (${variant.weight}kg/m)`;
-            innerSpecSelect.appendChild(option);
+            newInnerSpecSelect.appendChild(option);
+        });
+        
+        // 重新绑定内径规格选择事件
+        newInnerSpecSelect.addEventListener('change', function() {
+            updateCasingDetails(parent, size, this.value);
         });
     }
     
-    // 清空内径
+    drawWellDiagram();
+}
+
+// 更新套管详情 - 简化并确保总是更新值
+function updateCasingDetails(parent, size, variantIndex) {
+    const odInput = parent.querySelector('.casing-od');
     const idInput = parent.querySelector('.casing-id');
-    idInput.value = '';
-    // 重置用户修改标记
+    
+    if (size === '' || variantIndex === '' || !casingData[size] || !casingData[size].variants[variantIndex]) {
+        return;
+    }
+    
+    // 总是更新内径值，不考虑用户是否修改过
+    const variant = casingData[size].variants[variantIndex];
+    odInput.value = casingData[size].od;
+    idInput.value = variant.id;
+    
+    // 重置修改标记
+    odInput.dataset.userModified = 'false';
     idInput.dataset.userModified = 'false';
     
     drawWellDiagram();
 }
 
-// 更新套管详情
-function updateCasingDetails(parent, size, variantIndex) {
-    const odInput = parent.querySelector('.casing-od');
-    const idInput = parent.querySelector('.casing-id');
-    
-    if (size === '' || variantIndex === '') {
-        odInput.value = '';
-        idInput.value = '';
-        return;
-    }
-    
-    if (casingData[size] && casingData[size].variants[variantIndex]) {
-        const variant = casingData[size].variants[variantIndex];
-        
-        // 总是更新值，不检查用户修改标记
-        odInput.value = casingData[size].od;
-        idInput.value = variant.id;
-        
-        // 更新用户修改标记
-        odInput.dataset.userModified = 'false';
-        idInput.dataset.userModified = 'false';
-    }
-    
-    drawWellDiagram();
-}
-
-// 添加套管段
+// 添加套管段 - 确保所有事件正确绑定
 function addCasingSection() {
     const casingList = document.getElementById('casingList');
     const newItem = document.createElement('div');
@@ -386,24 +399,26 @@ function addCasingSection() {
     
     casingList.appendChild(newItem);
     
-    // 初始化新添加的套管选项
-    populateCasingOptions(newItem.querySelector('.casing-size'));
+    // 填充套管尺寸选项
+    const sizeSelect = newItem.querySelector('.casing-size');
+    populateCasingOptions(sizeSelect);
     
-    // 添加事件监听
-    newItem.querySelector('.casing-size').addEventListener('change', function() {
+    // 绑定尺寸选择事件
+    sizeSelect.addEventListener('change', function() {
         updateCasingInnerOptions(newItem, this.value);
     });
     
+    // 绑定删除按钮事件
     newItem.querySelector('.remove-casing').addEventListener('click', function() {
         casingList.removeChild(newItem);
         drawWellDiagram();
     });
     
-    // 更新深度输入框事件
+    // 绑定深度变化事件
     newItem.querySelector('.casing-top-depth').addEventListener('change', drawWellDiagram);
     newItem.querySelector('.casing-bottom-depth').addEventListener('change', drawWellDiagram);
     
-    // 为新添加的输入框设置用户修改监听
+    // 绑定外径内径修改跟踪
     newItem.querySelectorAll('.casing-od, .casing-id').forEach(input => {
         input.addEventListener('input', function() {
             this.dataset.userModified = 'true';
@@ -411,6 +426,7 @@ function addCasingSection() {
         });
     });
 }
+
 
 // 更新油管选项
 function updateTubingOptions() {
